@@ -6,7 +6,6 @@ from db_utility import DBUtility
 class MemberUtility:
     def __init__(self):
         self.license_types = ['owd', 'aa', 'ean', 'dd', 'nl', 'nv', 'sidemount', 'rrsr', 'bd', 'rec', 'fd', 'dry', 'pb', 'dc', 'itc', 'nightspi']
-        self.license_entities = ['deposit', 'payment', 'material', 'apply', 'get_license', 'status']
 
         ## Initialize logger
         #client = google.cloud.logging.Client()
@@ -16,6 +15,23 @@ class MemberUtility:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler)
     
+    def get_member(self, request):
+        final_result = {}
+        db_utility = DBUtility()
+
+        self.logger.info('Get member %s' % request.id_number)
+
+        query_result = db_utility.get_member_info(id_number = request.id_number)
+        final_result.update(query_result.to_dict())
+
+        query_result = db_utility.get_member_eq(id_number = request.id_number)
+        final_result.update(query_result.to_dict())
+
+        query_result = db_utility.get_member_license(id_number = request.id_number)
+        final_result.update(query_result.to_dict())
+
+        return final_result
+
     def create_member(self, request):
         db_utility = DBUtility()
         # member_data, member_eq_data, license_data = self.request2Dict(request)
@@ -40,7 +56,7 @@ class MemberUtility:
            gloves = request.gloves, overshoes = request.overshoes, fins = request.fins, bc = request.bc, regulator = request.regulator, 
            dive_computer = request.dive_computer, counterweight = request.counterweight)
         
-        ## create member license data into data, only OWD has  tank card
+        ## create member license data into data, only OWD has tank card
         for license_type in self.license_types:
             if license_type == 'owd':
                 db_utility.create_member_license(

@@ -13,6 +13,10 @@ class DBUtility:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler) 
 
+    def get_member_info(self, id_number):
+        return MemberInfo.query(MemberInfo.id_number == id_number).get()
+        # return MemberInfo.query(*(getattr(MemberInfo, k)==v for (k,v) in kwargs.items())).fetch()
+
     def create_member_info(
         self, id_number, ch_name, en_name, birthday, nationality, tel_code, mobile_phone, email, postal_code, address,
         company, job_title, company_tel_code, emergency_contact_name, emergency_contact_phone, source, remarks, blood_type,
@@ -20,12 +24,15 @@ class DBUtility:
 
         # print member_data
         added_entity = MemberInfo(
-            id_number = id_number, ch_name = id_number, en_name = en_name, birthday = birthday, nationality = nationality, tel_code = tel_code, 
+            id_number = id_number, ch_name = ch_name, en_name = en_name, birthday = birthday, nationality = nationality, tel_code = tel_code, 
             mobile_phone = mobile_phone, email = email, postal_code = postal_code, address = address, company = company, job_title = job_title, 
             company_tel_code = company_tel_code, emergency_contact_name = emergency_contact_name, emergency_contact_phone = emergency_contact_phone, 
             source = source, remarks = remarks, blood_type = blood_type, left_eye = left_eye, right_eye = right_eye, height = height, weight = weight)
 
         added_entity.put()
+
+    def get_member_eq(self, id_number):
+        return MemberEquipment.query(MemberEquipment.id_number == id_number).get()
 
     def create_member_eq(self, id_number, mirror, breathing_tube, jackets, gloves, overshoes, fins, bc, regulator, dive_computer, counterweight):
 
@@ -34,6 +41,9 @@ class DBUtility:
             overshoes = overshoes, fins = fins, bc = bc, regulator = regulator, dive_computer = dive_computer, counterweight = counterweight)
         
         added_entity.put()
+
+    def get_member_license(self, id_number):
+        return MemberLicense.query(MemberLicense.id_number == id_number).get()
 
     def create_member_license(self, id_number, license_type, deposit, payment, material, apply, get_license, status, tank_card=0):
         added_entity = MemberLicense(
