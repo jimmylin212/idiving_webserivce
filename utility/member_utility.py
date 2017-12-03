@@ -48,10 +48,10 @@ class MemberUtility:
             return 'error'
 
         ## create member info into database
-#        db_utility.upsert_member_info(request)
+        db_utility.upsert_member_info(request)
 
         ## create member equipment info into database
-#        db_utility.upsert_member_eq(request)
+        db_utility.upsert_member_eq(request)
 
         ## create member license data into data, only OWD has tank card
         db_utility.upsert_member_license(request)
@@ -73,6 +73,6 @@ class MemberUtility:
 
         else:
             return 'error'
-        
+
         return
         
