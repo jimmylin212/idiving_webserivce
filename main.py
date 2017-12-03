@@ -23,6 +23,7 @@ class InternalApi(remote.Service):
 
     @endpoints.method(MEMBER_RESOURCE, Response, path='member', http_method='PATCH', name='update_member')
     def update_member(self, request):
+        response = self.member_utility.patch_member(request)
         return Response(status='PATCH')
 
 api = endpoints.api_server([InternalApi])

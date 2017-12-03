@@ -13,41 +13,87 @@ class DBUtility:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler) 
 
-    def get_member_info(self, id_number):
-        return MemberInfo.query(MemberInfo.id_number == id_number).get()
-        # return MemberInfo.query(*(getattr(MemberInfo, k)==v for (k,v) in kwargs.items())).fetch()
+    ## Functions for MemberInfo
+    def get_member_info(self, **kwargs):
+        return MemberInfo.query(*(getattr(MemberInfo, k)==v for (k,v) in kwargs.items())).get()
 
-    def create_member_info(
-        self, id_number, ch_name, en_name, birthday, nationality, tel_code, mobile_phone, email, postal_code, address,
-        company, job_title, company_tel_code, emergency_contact_name, emergency_contact_phone, source, remarks, blood_type,
-        left_eye, right_eye, height, weight):
+    def upsert_member_info(self, request):
+        properties = MemberInfo._properties
 
-        # print member_data
-        added_entity = MemberInfo(
-            id_number = id_number, ch_name = ch_name, en_name = en_name, birthday = birthday, nationality = nationality, tel_code = tel_code, 
-            mobile_phone = mobile_phone, email = email, postal_code = postal_code, address = address, company = company, job_title = job_title, 
-            company_tel_code = company_tel_code, emergency_contact_name = emergency_contact_name, emergency_contact_phone = emergency_contact_phone, 
-            source = source, remarks = remarks, blood_type = blood_type, left_eye = left_eye, right_eye = right_eye, height = height, weight = weight)
+        target_entity = self.get_member_info(id_number = request.id_number)
 
-        added_entity.put()
+        if target_entity:
+            ## Update if find the same id_number in db
+            for each_property in properties:
+                updated_value = request.get_assigned_value(each_property)
+                if updated_value:
+                    setattr(target_entity, each_property, updated_value)
+            target_entity.put()
+        else:
+            ## Insert new record if doesn't find in db
+            added_entity = MemberInfo()
+            for each_property in properties:
+                setattr(added_entity, each_property, request.get_assigned_value(each_property))
+            added_entity.put()
 
+    ## Functions for MemberEquipment
     def get_member_eq(self, id_number):
         return MemberEquipment.query(MemberEquipment.id_number == id_number).get()
 
-    def create_member_eq(self, id_number, mirror, breathing_tube, jackets, gloves, overshoes, fins, bc, regulator, dive_computer, counterweight):
+    def upsert_member_eq(self, request):
+        properties = MemberEquipment._properties
 
-        added_entity = MemberEquipment(
-            id_number = id_number, mirror = mirror, breathing_tube = breathing_tube, jackets = jackets, gloves = gloves, 
-            overshoes = overshoes, fins = fins, bc = bc, regulator = regulator, dive_computer = dive_computer, counterweight = counterweight)
-        
-        added_entity.put()
+        target_entity = self.get_member_eq(id_number = request.id_number)
 
-    def get_member_license(self, id_number):
-        return MemberLicense.query(MemberLicense.id_number == id_number).get()
+        if target_entity:
+            ## Update if find the same id_number in db
+            for each_property in properties:
+                updated_value = request.get_assigned_value(each_property)
+                if updated_value:
+                    setattr(target_entity, each_property, updated_value)
+            target_entity.put()
+        else:
+            ## Insert new record if doesn't find in db
+            added_entity = MemberEquipment()
+            for each_property in properties:
+                setattr(added_entity, each_property, request.get_assigned_value(each_property))
+            added_entity.put()
 
-    def create_member_license(self, id_number, license_type, deposit, payment, material, apply, get_license, status, tank_card=0):
-        added_entity = MemberLicense(
-            id_number = id_number, license_type = license_type, deposit = deposit, payment = payment, material = material, 
-            apply = apply, get_license = get_license, status = status, tank_card = tank_card)
+    ## Functions for MemberLicense
+    def get_member_license(self, id_number, license_type):
+        return MemberLicense.query(MemberLicense.id_number == id_number, MemberLicense.license_type == license_type).get()
 
-        added_entity.put()
+    def upsert_member_license(self, request):
+        ## The license_types cloud be replaced once the course data is in database
+        license_types = ['owd', 'aa', 'ean', 'dd', 'nl', 'nv', 'sidemount', 'rrsr', 'bd', 'rec', 'fd', 'dry', 'pb', 'dc', 'itc', 'nightspi']
+        properties = MemberLicense._properties
+
+        for license_type in license_types:
+            target_entity = self.get_member_license(id_number = request.id_number, license_type = license_type)
+
+            if target_entity:
+                ## Update if find the same id_number in db
+                for each_property in properties:
+                    if each_property != 'id_number' and each_property != 'license_type':
+                        if each_property == 'tank_card' and license_type != 'owd':
+                            continue
+
+                        updated_value = request.get_assigned_value('%s_%s' % (license_type, each_property))
+                        if updated_value:
+                            setattr(target_entity, each_property, updated_value)
+
+                target_entity.put()
+            else:
+                ## Insert new record if doesn't find in db
+                added_entity = MemberLicense()
+                for each_property in properties:
+                    if each_property == 'id_number':
+                        setattr(added_entity, each_property, request.id_number)
+                    elif each_property == 'license_type':
+                        setattr(added_entity, each_property, license_type)
+                    elif each_property == 'tank_card':
+                        if license_type == 'owd':
+                            setattr(added_entity, each_property, request.get_assigned_value('%s_%s' % (license_type, each_property)))    
+                    else:
+                        setattr(added_entity, each_property, request.get_assigned_value('%s_%s' % (license_type, each_property)))
+                added_entity.put()

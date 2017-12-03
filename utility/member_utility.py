@@ -5,8 +5,6 @@ from db_utility import DBUtility
 
 class MemberUtility:
     def __init__(self):
-        self.license_types = ['owd', 'aa', 'ean', 'dd', 'nl', 'nv', 'sidemount', 'rrsr', 'bd', 'rec', 'fd', 'dry', 'pb', 'dc', 'itc', 'nightspi']
-
         ## Initialize logger
         #client = google.cloud.logging.Client()
         #handler = CloudLoggingHandler(client, name="member")
@@ -18,17 +16,26 @@ class MemberUtility:
     def get_member(self, request):
         final_result = {}
         db_utility = DBUtility()
+      
+        if (request.id_number):
+            self.logger.info('Get member %s' % request.id_number)
+            query_result = db_utility.get_member_info(id_number = request.id_number)
+            final_result.update(query_result.to_dict())
+        elif (request.ch_name):
+            self.logger.info('Get member %s' % request.ch_name)
+            query_result = db_utility.get_member_info(ch_name = request.ch_name)
+            final_result.update(query_result.to_dict())
+        else:
+            return 'error'
+        
+        if query_result:
+            request_id_number = final_result['id_number']
 
-        self.logger.info('Get member %s' % request.id_number)
+            query_result = db_utility.get_member_eq(id_number = request_id_number)
+            final_result.update(query_result.to_dict())
 
-        query_result = db_utility.get_member_info(id_number = request.id_number)
-        final_result.update(query_result.to_dict())
-
-        query_result = db_utility.get_member_eq(id_number = request.id_number)
-        final_result.update(query_result.to_dict())
-
-        query_result = db_utility.get_member_license(id_number = request.id_number)
-        final_result.update(query_result.to_dict())
+            query_result = db_utility.get_member_license(id_number = request_id_number)
+            final_result.update(query_result.to_dict())
 
         return final_result
 
@@ -41,35 +48,31 @@ class MemberUtility:
             return 'error'
 
         ## create member info into database
-        db_utility.create_member_info(
-            id_number = request.id_number, ch_name = request.ch_name, en_name = request.en_name, birthday = request.birthday,
-            nationality = request.nationality, tel_code = request.tel_code,  mobile_phone = request.mobile_phone, email = request.email,
-            postal_code = request.postal_code, address = request.address, company = request.company, job_title = request.job_title,
-            company_tel_code = request.company_tel_code, emergency_contact_name = request.emergency_contact_name, 
-            emergency_contact_phone = request.emergency_contact_phone, source = request.source, remarks = request.remarks,
-            blood_type = request.blood_type, left_eye = request.left_eye, right_eye = request.right_eye, height = request.height,
-            weight = request.weight)
+#        db_utility.upsert_member_info(request)
 
         ## create member equipment info into database
-        db_utility.create_member_eq(
-           id_number = request.id_number, mirror = request.mirror, breathing_tube = request.breathing_tube, jackets = request.jackets,
-           gloves = request.gloves, overshoes = request.overshoes, fins = request.fins, bc = request.bc, regulator = request.regulator, 
-           dive_computer = request.dive_computer, counterweight = request.counterweight)
-        
+#        db_utility.upsert_member_eq(request)
+
         ## create member license data into data, only OWD has tank card
-        for license_type in self.license_types:
-            if license_type == 'owd':
-                db_utility.create_member_license(
-                    id_number = request.id_number, license_type = license_type, deposit = request.get_assigned_value('%s_deposit' % (license_type)),
-                    payment = request.get_assigned_value('%s_payment' % (license_type)), material = request.get_assigned_value('%s_material' % (license_type)),
-                    apply = request.get_assigned_value('%s_apply' % (license_type)), get_license = request.get_assigned_value('%s_license' % (license_type)),
-                    status = request.get_assigned_value('%s_status' % (license_type)), tank_card = request.get_assigned_value('%s_tank_card' % (license_type)))
-            else:
-                db_utility.create_member_license(
-                    id_number = request.id_number, license_type = license_type, deposit = request.get_assigned_value('%s_deposit' % (license_type)),
-                    payment = request.get_assigned_value('%s_payment' % (license_type)), material = request.get_assigned_value('%s_material' % (license_type)),
-                    apply = request.get_assigned_value('%s_apply' % (license_type)), get_license = request.get_assigned_value('%s_license' % (license_type)),
-                    status = request.get_assigned_value('%s_status' % (license_type)))
+        db_utility.upsert_member_license(request)
 
         return 'success'
+
+    def patch_member(self, request):
+        db_utility = DBUtility()
+
+        if (request.id_number == None):
+            return 'error'
+
+        target_member_info = db_utility.get_member_info(id_number = request.id_number)
+
+        if (target_member_info):
+            db_utility.upsert_member_info(request)
+            db_utility.upsert_member_eq(request)
+            db_utility.upsert_member_license(request)
+
+        else:
+            return 'error'
+        
+        return
         

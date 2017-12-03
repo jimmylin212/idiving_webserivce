@@ -4,7 +4,7 @@ class Response(messages.Message):
     status = messages.StringField(1)
 
 class MemberRequest(messages.Message):
-    id_number = messages.StringField(1, required=True)
+    id_number = messages.StringField(1)
     ch_name = messages.StringField(2)
     en_name = messages.StringField(3)
     birthday = messages.StringField(4)
@@ -27,7 +27,7 @@ class MemberRequest(messages.Message):
     height = messages.IntegerField(21)
     weight = messages.IntegerField(22) 
     ## Member equipment
-    mirror = messages.StringField(24)
+    mirror = messages.BooleanField(24)
     breathing_tube = messages.BooleanField(25)
     jackets = messages.BooleanField(26)
     gloves = messages.BooleanField(27)

@@ -44,7 +44,7 @@ class MemberLicense(ndb.Model):
     payment = ndb.BooleanProperty()
     material = ndb.BooleanProperty()
     apply = ndb.BooleanProperty()
-    get_license = ndb.BooleanProperty()
+    license = ndb.BooleanProperty()
     status = ndb.StringProperty()
     tank_card = ndb.IntegerProperty()
     
