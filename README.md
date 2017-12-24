@@ -1,18 +1,18 @@
 # idiving_webserivce
 The back-end web service for iDiving
 
-## 使用方式
+## Usage
 
 Base URL: 
 
-### 會員資料
+### Member Data
 URL: `https://<BASE_URL>/_ah/api/internal/v1/member`
 
 Accept Method: POST, PUT, PATCH
 
 Accept Columns: Please check the class MemberRequest within [messages](https://github.com/jimmylin212/idiving_webserivce/blob/master/models/messages.py).py
 
-#### 查詢
+#### Search member
 Method: POST
 Example: 
 ```
@@ -21,7 +21,7 @@ Example:
 }
 ```
 
-#### 新增
+#### Add new member
 Method: PUT
 Example:
 ```
@@ -31,7 +31,7 @@ Example:
 }
 ```
 
-#### 修改
+#### Update member data
 Method: PATCH
 Example:
 ```
