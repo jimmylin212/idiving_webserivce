@@ -6,7 +6,7 @@ The back-end web service for iDiving
 Base URL: 
 
 ### 會員資料
-URL: `https//<BASE_URL>/_ah/api/internal/v1/member`
+URL: `https://<BASE_URL>/_ah/api/internal/v1/member`
 
 Accept Method: POST, PUT, PATCH
 
