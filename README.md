@@ -10,7 +10,7 @@ URL: `https://<BASE_URL>/_ah/api/internal/v1/member`
 
 Accept Method: POST, PUT, PATCH
 
-Accept Columns: Please check the class MemberRequest within [messages](https://github.com/jimmylin212/idiving_webserivce/blob/master/models/messages.py).py
+Accept Columns: Please check the class [MemberRequest](https://github.com/jimmylin212/idiving_webserivce/blob/master/models/messages.py#L6) within messages.py file.
 
 #### Search member
 Method: POST
