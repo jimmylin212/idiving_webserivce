@@ -60,8 +60,21 @@ class DBUtility:
             added_entity.put()
 
     ## Functions for MemberLicense
-    def get_member_license(self, id_number, license_type):
-        return MemberLicense.query(MemberLicense.id_number == id_number, MemberLicense.license_type == license_type).get()
+    def get_member_license(self, id_number, license_type='all'):
+        member_license_results = []
+        license_types = ['owd', 'aa', 'ean', 'dd', 'nl', 'nv', 'sidemount', 'rrsr', 'bd', 'rec', 'fd', 'dry', 'pb', 'dc', 'itc', 'nightspi']
+
+        if (license_type == 'all'):
+            for license_type in license_types:
+                query_result = MemberLicense.query(MemberLicense.id_number == id_number, MemberLicense.license_type == license_type).get()
+                if query_result:
+                    member_license_results.append(query_result)
+        else:
+            query_result = MemberLicense.query(MemberLicense.id_number == id_number, MemberLicense.license_type == license_type).get()
+            if query_result:
+                member_license_results.append(query_result)
+
+        return member_license_results
 
     def upsert_member_license(self, request):
         ## The license_types cloud be replaced once the course data is in database
@@ -71,7 +84,8 @@ class DBUtility:
         for license_type in license_types:
             target_entity = self.get_member_license(id_number = request.id_number, license_type = license_type)
 
-            if target_entity:
+            if target_entity and target_entity[0]:
+                target_entity = target_entity[0]
                 ## Update if find the same id_number in db
                 for each_property in properties:
                     if each_property != 'id_number' and each_property != 'license_type':

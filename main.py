@@ -13,13 +13,13 @@ class InternalApi(remote.Service):
 
     @endpoints.method(MEMBER_RESOURCE, Response, path='member', http_method='POST', name='get_member')
     def get_member(self, request):
-        response = self.member_utility.get_member(request)
-        return Response(status=response)
+        status, data = self.member_utility.get_member(request)
+        return Response(status=status, data=data)
 
     @endpoints.method(MEMBER_RESOURCE, Response, path='member', http_method='PUT', name='create_member')
     def create_member(self, request):
         response = self.member_utility.create_member(request)
-        return Response(status=request.name)
+        return Response(status='PUT')
 
     @endpoints.method(MEMBER_RESOURCE, Response, path='member', http_method='PATCH', name='update_member')
     def update_member(self, request):
