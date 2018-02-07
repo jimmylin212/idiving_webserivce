@@ -40,11 +40,11 @@ class MemberEquipment(ndb.Model):
 class MemberLicense(ndb.Model):
     id_number = ndb.StringProperty(required=True)
     license_type = ndb.StringProperty()
-    deposit = ndb.BooleanProperty()
-    payment = ndb.BooleanProperty()
-    material = ndb.BooleanProperty()
-    apply = ndb.BooleanProperty()
-    license = ndb.BooleanProperty()
+    deposit = ndb.StringProperty()
+    payment = ndb.StringProperty()
+    material = ndb.StringProperty()
+    apply = ndb.StringProperty()
+    license = ndb.StringProperty()
     status = ndb.StringProperty()
     tank_card = ndb.IntegerProperty()
     
