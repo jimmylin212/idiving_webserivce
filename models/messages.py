@@ -14,6 +14,8 @@ class MemberRequest(messages.Message):
     mobile_phone = messages.StringField(7)
     email = messages.StringField(8)
     postal_code = messages.IntegerField(9)
+    city = messages.StringField(131)
+    region = messages.StringField(132)
     address = messages.StringField(10)
     company = messages.StringField(11)
     job_title = messages.StringField(12)
@@ -25,8 +27,8 @@ class MemberRequest(messages.Message):
     blood_type = messages.StringField(18)
     left_eye = messages.StringField(19)
     right_eye = messages.StringField(20)
-    height = messages.IntegerField(21)
-    weight = messages.IntegerField(22) 
+    height = messages.FloatField(21)
+    weight = messages.FloatField(22) 
     ## Member equipment
     mirror = messages.BooleanField(24)
     breathing_tube = messages.BooleanField(25)
@@ -37,7 +39,7 @@ class MemberRequest(messages.Message):
     bc = messages.BooleanField(30)
     regulator = messages.BooleanField(31)
     dive_computer = messages.BooleanField(32)
-    counterweight = messages.IntegerField(33)
+    counterweight = messages.FloatField(33)
     ## Open Water
     owd_deposit = messages.StringField(34)
     owd_payment = messages.StringField(35)
@@ -45,7 +47,7 @@ class MemberRequest(messages.Message):
     owd_apply = messages.StringField(37)
     owd_license = messages.StringField(38)
     owd_status = messages.StringField(39)
-    owd_tank_card = messages.StringField(40)
+    owd_tank_card = messages.IntegerField(40)
     ## Advanced Adventurer 
     aa_deposit = messages.StringField(41)
     aa_payment = messages.StringField(42)

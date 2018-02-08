@@ -1,4 +1,4 @@
-import logging, json
+import logging, json, datetime
 from db_utility import DBUtility
 #import google.cloud.logging
 #from google.cloud.logging.handlers import CloudLoggingHandler
@@ -16,6 +16,53 @@ class MemberUtility:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler)
     
+    def pre_process(self, request):
+        db_utility = DBUtility()
+        member_info = {}
+        member_eq = {}
+        member_licenses = []
+
+        for each_property in db_utility.member_info_properties:
+            if (request.get_assigned_value(each_property) and each_property == 'birthday'):
+                member_info[each_property] = datetime.datetime.strptime(request.get_assigned_value(each_property), '%Y/%m/%d')
+            elif (request.get_assigned_value(each_property) and (each_property == 'height' or each_property == 'weight')):
+                member_info[each_property] = float(request.get_assigned_value(each_property))
+            else:
+                member_info[each_property] = request.get_assigned_value(each_property)
+        
+        for each_property in db_utility.member_eq_properties:
+            if (each_property == 'id_number'):
+                member_eq[each_property] = request.id_number
+            elif (request.get_assigned_value(each_property) and each_property == 'counterweight'):
+                member_eq[each_property] = float(request.get_assigned_value(each_property))
+            else:
+                if (request.get_assigned_value(each_property)):
+                    member_eq[each_property] = True
+                else:
+                    member_eq[each_property] = False
+
+        for license_type in db_utility.member_lincense_types:
+            member_license = {}
+            for each_property in db_utility.member_license_properties:
+                if (each_property == 'license_type'):
+                    member_license['license_type'] = license_type
+                elif (each_property == 'id_number'):
+                    member_license['id_number'] = request.id_number
+                elif (each_property == 'tank_card'):
+                    if (license_type == 'owd'):
+                        if (request.get_assigned_value('%s_%s' % (license_type, each_property))):
+                            member_license['tank_card'] = int(request.get_assigned_value('%s_%s' % (license_type, each_property)))
+                else:
+                    if (request.get_assigned_value('%s_%s' % (license_type, each_property))):
+                        member_license[each_property] = datetime.datetime.strptime(
+                            request.get_assigned_value('%s_%s' % (license_type, each_property)), '%Y/%m/%d')
+                    else:
+                        member_license[each_property] = None
+                
+            member_licenses.append(member_license)
+
+        return member_info, member_eq, member_licenses
+
     def get_member(self, request):
         final_result = {}
         db_utility = DBUtility()
@@ -59,14 +106,18 @@ class MemberUtility:
         if (request.id_number == None):
             return RETURN_ERROR
 
+        ## get the key value of each member data
+        member_info, member_eq, member_licenses = self.pre_process(request)
+
         ## create member info into database
-        db_utility.upsert_member_info(request)
+        db_utility.upsert_member_info(member_info)
 
         ## create member equipment info into database
-        db_utility.upsert_member_eq(request)
+        db_utility.upsert_member_eq(member_eq)
 
         ## create member license data into data, only OWD has tank card
-        db_utility.upsert_member_license(request)
+        for member_license in member_licenses:
+            db_utility.upsert_member_license(member_license)
 
         return RETURN_SUCCESS
 
