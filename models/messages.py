@@ -154,3 +154,15 @@ class MemberRequest(messages.Message):
     nightspi_apply = messages.StringField(128)
     nightspi_license = messages.StringField(129)
     nightspi_status = messages.StringField(130)
+
+class CourseRequest(messages.Message):
+    course_type = messages.StringField(1)
+    course_name = messages.StringField(2)
+    course_price = messages.IntegerField(3)
+
+class EventRequest(message.Message):
+    event_type = messages.StringField(1)
+    event_name = messages.StringField(2)
+    event_start_date = messages.StringField(3)
+    event_end_date = messages.StringField(4)
+    related_course = messages.StringField(5)
