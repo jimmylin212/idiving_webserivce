@@ -52,7 +52,7 @@ class DBUtility:
         member_license_results = []
 
         if (license_type == 'all'):
-            for license_type in license_types:
+            for license_type in self.member_lincense_types:
                 query_result = MemberLicense.query(MemberLicense.id_number == id_number, MemberLicense.license_type == license_type).get()
                 if query_result:
                     member_license_results.append(query_result)

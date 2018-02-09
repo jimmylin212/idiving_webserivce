@@ -3,6 +3,7 @@ from protorpc import messages
 class Response(messages.Message):
     status = messages.StringField(1)
     data = messages.BytesField(2)
+    message = messages.StringField(3)
 
 class MemberRequest(messages.Message):
     id_number = messages.StringField(1)
