@@ -1,16 +1,9 @@
 import logging, json, datetime
 from db_utility import DBUtility
+from common_utility import CommonUtility
+
 #import google.cloud.logging
 #from google.cloud.logging.handlers import CloudLoggingHandler
-
-SUCCESS_STATUS = 'success'
-FAILED_STATUS = 'error'
-SUCCESS_GET_MEMBER_MSG = 'SUCCESS_GET_MEMBER_MSG'
-SUCCESS_CREATE_MEMBER_MSG = 'SUCCESS_CREATE_MEMBER_MSG'
-SUCCESS_PATCH_MEMBER_MSG = 'SUCCESS_PATCH_MEMBER_MSG'
-FAILED_DUPLICATE_MEMBER_MSG = 'FAILED_DUPLICATE_MEMBER_MSG'
-FAILED_COLUMN_MISSING_MSG = 'FAILED_COLUMN_MISSING_MSG'
-FAILED_MEMBER_NOT_FOUND_MSG = 'FAILED_MEMBER_NOT_FOUND_MSG'
 
 class MemberUtility:
     def __init__(self):
@@ -22,7 +15,7 @@ class MemberUtility:
         self.logger.setLevel(logging.INFO)
         self.logger.addHandler(handler)
     
-    def pre_process(self, request):
+    def prettify_request(self, request):
         db_utility = DBUtility()
         member_info = {}
         member_eq = {}
@@ -73,6 +66,7 @@ class MemberUtility:
         query_result = {}
         final_result = {}
         db_utility = DBUtility()
+        common_utility = CommonUtility()
       
         if (request.id_number):
             self.logger.info('Get member %s' % request.id_number)
@@ -83,7 +77,7 @@ class MemberUtility:
             member_info_result = db_utility.get_member_info(ch_name = request.ch_name)
             query_result.update(member_info_result.to_dict())
         else:
-            return {'status': FAILED_STATUS, 'message': FAILED_COLUMN_MISSING_MSG}
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
         
         if member_info_result:
             request_id_number = query_result['id_number']
@@ -110,49 +104,51 @@ class MemberUtility:
                 final_result[key] = query_result[key]
 
 
-        return {'status': SUCCESS_STATUS, 'message': SUCCESS_GET_MEMBER_MSG, 'data': json.dumps(final_result, ensure_ascii=True)}
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_MEMBER_MSG', json.dumps(final_result, ensure_ascii=True))
 
     def create_member(self, request):
         db_utility = DBUtility()
+        common_utility = CommonUtility()
         # member_data, member_eq_data, license_data = self.request2Dict(request)
         self.logger.info('Create member %s' % request.id_number)
 
         if (request.id_number == None):
-            return {'status': FAILED_STATUS, 'message': FAILED_COLUMN_MISSING_MSG}
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
 
         target_member_info = db_utility.get_member_info(id_number = request.id_number)
 
-        if (target_member_info == None):
+        if not target_member_info:
             ## get the key value of each member data
-            member_info, member_eq, member_licenses = self.pre_process(request)
+            member_info, member_eq, member_licenses = self.prettify_request(request)
 
             db_utility.upsert_member_info(member_info)
             db_utility.upsert_member_eq(member_eq)
             for member_license in member_licenses:
                 db_utility.upsert_member_license(member_license)
         else:
-            return {'status': FAILED_STATUS, 'message': FAILED_DUPLICATE_MEMBER_MSG}
+            return common_utility.responseHandler('FAILED', 'FAILED_DUPLICATE_MEMBER_MSG')
 
-        return {'status': SUCCESS_STATUS, 'message': SUCCESS_CREATE_MEMBER_MSG}
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_CREATE_MEMBER_MSG')
 
     def patch_member(self, request):
         db_utility = DBUtility()
+        common_utility = CommonUtility()
         self.logger.info('Patch member %s' % request.id_number)
 
-        if (request.id_number == None):
-            return {'status': FAILED_STATUS, 'message': FAILED_COLUMN_MISSING_MSG}
+        if not request.id_number:
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
 
         target_member_info = db_utility.get_member_info(id_number = request.id_number)
 
         if (target_member_info):
-            member_info, member_eq, member_licenses = self.pre_process(request)
+            member_info, member_eq, member_licenses = self.prettify_request(request)
             db_utility.upsert_member_info(member_info)
             db_utility.upsert_member_eq(member_eq)
             for member_license in member_licenses:
                 db_utility.upsert_member_license(member_license)
 
         else:
-            return {'status': FAILED_STATUS, 'message': FAILED_MEMBER_NOT_FOUND_MSG}
+            return common_utility.responseHandler('FAILED', 'FAILED_MEMBER_NOT_FOUND_MSG')
 
-        return {'status': SUCCESS_STATUS, 'message': SUCCESS_PATCH_MEMBER_MSG}
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_PATCH_MEMBER_MSG')
         

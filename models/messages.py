@@ -156,13 +156,20 @@ class MemberRequest(messages.Message):
     nightspi_status = messages.StringField(130)
 
 class CourseRequest(messages.Message):
-    course_type = messages.StringField(1)
-    course_name = messages.StringField(2)
-    course_price = messages.IntegerField(3)
+    unique_code = messages.StringField(1)
+    type = messages.StringField(2)
+    name = messages.StringField(3)
+    price = messages.IntegerField(4)
+    coash = messages.StringField(5)
+    dates = messages.StringField(6)
+    members = messages.StringField(7)    
 
-class EventRequest(message.Message):
-    event_type = messages.StringField(1)
-    event_name = messages.StringField(2)
-    event_start_date = messages.StringField(3)
-    event_end_date = messages.StringField(4)
-    related_course = messages.StringField(5)
+class EventRequest(messages.Message):
+    unique_code = messages.StringField(1)
+    type = messages.StringField(2)
+    name = messages.StringField(3)
+    start_date = messages.StringField(4)
+    end_date = messages.StringField(5)
+    related_course = messages.StringField(6)
+    coash = messages.StringField(7)
+    members = messages.StringField(8)

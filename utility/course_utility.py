@@ -1,19 +1,66 @@
 import logging, json, datetime
 from db_utility import DBUtility
+from common_utility import CommonUtility
 
 class CourseUtility:
-    def __init__:
-        return
+    def __init__(self):
+        ## Initialize logger
+        #client = google.cloud.logging.Client()
+        #handler = CloudLoggingHandler(client, name="member")
+        handler = logging.StreamHandler()
+        self.logger = logging.getLogger('cloudLogger')
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(handler)
     
-    def create_unique_code(self):
-        return
+    def prettify_request(self, request):
+        updated_input = {}
+        db_utility = DBUtility()
+        
+        for each_property in db_utility.course_properties:
+            if (each_property == 'unique_code'):
+                updated_input[each_property] = '%s-%s' % (request.type, request.dates.split(',')[0].replace('/', ''))
+            elif (each_property == 'start_date'):
+                updated_input[each_property] = datetime.datetime.strptime(request.dates.split(',')[0], '%Y/%m/%d')
+            elif (each_property == 'members' or each_property == 'dates'):
+                updated_input[each_property] = json.dumps(request.get_assigned_value(each_property))
+            elif (each_property == 'price' and not request.price):
+                updated_input[each_property] = 0
+            else:
+                updated_input[each_property] = request.get_assigned_value(each_property)
+
+        return updated_input
 
     def get_course(self):
         return
 
-    def create_course(self):
-        db_utility = DBUtility()
+    def get_courses(self):
         return
 
-    def update_course(self):
-        return
+    def create_course(self, request):
+        db_utility = DBUtility()
+        common_utility = CommonUtility()
+
+        updated_input = self.prettify_request(request)
+
+        target_course_info = db_utility.get_course(updated_input['unique_code'])
+        if not target_course_info:
+            db_utility.upsert_course(updated_input)
+        else:
+            return common_utility.responseHandler('FAILED', 'FAILED_DUPLICATE_COURSE_MSG')
+
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_CREATE_COURSE_MSG')
+
+    def patch_course(self, request):
+        db_utility = DBUtility()
+        common_utility = CommonUtility()
+
+        if not request.unique_code:
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
+
+        target_course_info = db_utility.get_course(request.unique_code)
+        if target_course_info:
+            pass
+        else:
+            return common_utility.responseHandler('FAILED', 'FAILED_COURSE_NOT_FOUND_MSG')
+
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_PATCH_COURSE_MSG')

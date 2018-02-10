@@ -2,7 +2,7 @@ import logging, json, datetime
 from db_utility import DBUtility
 
 class EventUtility:
-    def __init__:
+    def __init__(self):
         return
     
     def get_event(self):

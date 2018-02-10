@@ -49,4 +49,12 @@ class MemberLicense(ndb.Model):
     license = ndb.DateProperty()
     status = ndb.StringProperty()
     tank_card = ndb.IntegerProperty()
+
+class Course(ndb.Model):
+    unique_code = ndb.StringProperty(required=True)
+    name = ndb.StringProperty()
+    price = ndb.IntegerProperty()
+    start_date = ndb.DateProperty(required=True)
+    dates = ndb.JsonProperty()
+    members = ndb.JsonProperty()
     

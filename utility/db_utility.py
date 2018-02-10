@@ -1,5 +1,5 @@
 import logging, datetime
-from models.database import MemberInfo, MemberEquipment, MemberLicense
+from models.database import MemberInfo, MemberEquipment, MemberLicense, Course
 #import google.cloud.logging
 #from google.cloud.logging.handlers import CloudLoggingHandler
 
@@ -16,6 +16,8 @@ class DBUtility:
         self.member_eq_properties = MemberEquipment._properties
         self.member_license_properties = MemberLicense._properties
         self.member_lincense_types = ['owd', 'aa', 'ean', 'dd', 'nl', 'nv', 'sidemount', 'rrsr', 'bd', 'rec', 'fd', 'dry', 'pb', 'dc', 'itc', 'nightspi']
+
+        self.course_properties = Course._properties
 
     ## Functions for MemberInfo
     def get_member_info(self, **kwargs):
@@ -76,3 +78,16 @@ class DBUtility:
                 setattr(target_entity, each_property, member_license[each_property])
         target_entity.put()
 
+    def get_course(self, unique_code):
+        return Course.query(Course.unique_code == unique_code).get()
+
+    def upsert_course(self, course_data):
+        target_entity = self.get_course(course_data['unique_code'])
+
+        if not target_entity:
+            target_entity = Course()
+        
+        for each_property in self.course_properties:
+            if (course_data[each_property]):
+                setattr(target_entity, each_property, course_data[each_property])
+        target_entity.put()
