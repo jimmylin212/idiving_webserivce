@@ -35,40 +35,56 @@ class CourseUtility:
 
     def get_course(self, request):
         query_result = {}
-        final_result = {}
         db_utility = DBUtility()
         common_utility = CommonUtility()
 
-        if not request.unique_code:
+        if (not request.unique_code):
             return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
 
-        query_course_result = db_utility.get_course(request.unique_code)
+        query_course_result = db_utility.get_course(unique_code=request.unique_code)
         query_result.update(query_course_result.to_dict())
 
-        self.logger.info(query_result)
         for key in query_result:
             if isinstance(query_result[key], datetime.date):
-                final_result[key] = query_result[key].strftime('%Y/%m/%d')
-            else:
-                final_result[key] = query_result[key]
+                query_result[key] = query_result[key].strftime('%Y/%m/%d')
 
-        self.logger.info(final_result)
-        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_COURSE_MSG', final_result)
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_COURSE_MSG', query_result)
 
-    def get_courses(self):
-        return
+    def get_courses(self, request):
+        final_results = []
+        db_utility = DBUtility()
+        common_utility = CommonUtility()
+
+        if (not request.type):
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
+        
+        query_courses_results = db_utility.get_courses(type=request.type)
+
+        for query_courses_result in query_courses_results:
+            query_result = {}
+            query_result.update(query_courses_result.to_dict())
+
+            for key in query_result:
+                if (isinstance(query_result[key], datetime.date)):
+                    query_result[key] = query_result[key].strftime('%Y/%m/%d')
+
+            final_results.append(query_result)
+
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_COURSE_MSG', final_results)
 
     def create_course(self, request):
         db_utility = DBUtility()
         common_utility = CommonUtility()
 
+        if (not request.type):
+            return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
         if (request.type and request.type not in db_utility.member_lincense_types):
             return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_INCORRECT')
 
         updated_input = self.prettify_request(request)
 
         target_course_info = db_utility.get_course(updated_input['unique_code'])
-        if not target_course_info:
+        if (not target_course_info):
             db_utility.upsert_course(updated_input)
         else:
             return common_utility.responseHandler('FAILED', 'FAILED_DUPLICATE_COURSE_MSG')
@@ -79,11 +95,11 @@ class CourseUtility:
         db_utility = DBUtility()
         common_utility = CommonUtility()
 
-        if not request.unique_code:
+        if (not request.unique_code):
             return common_utility.responseHandler('FAILED', 'FAILED_COLUMN_MISSING_MSG')
 
         target_course_info = db_utility.get_course(request.unique_code)
-        if target_course_info:
+        if (target_course_info):
             updated_input = self.prettify_request(request)
             db_utility.upsert_course(updated_input)
         else:

@@ -52,6 +52,7 @@ class MemberLicense(ndb.Model):
 
 class Course(ndb.Model):
     unique_code = ndb.StringProperty(required=True)
+    type = ndb.StringProperty()
     name = ndb.StringProperty()
     price = ndb.IntegerProperty()
     start_date = ndb.DateProperty(required=True)

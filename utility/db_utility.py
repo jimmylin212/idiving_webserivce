@@ -78,8 +78,11 @@ class DBUtility:
                 setattr(target_entity, each_property, member_license[each_property])
         target_entity.put()
 
-    def get_course(self, unique_code):
-        return Course.query(Course.unique_code == unique_code).get()
+    def get_course(self, **kwargs):
+        return Course.query(*(getattr(Course, k)==v for (k,v) in kwargs.items())).get()
+    
+    def get_courses(self, **kwargs):
+        return Course.query(*(getattr(Course, k)==v for (k,v) in kwargs.items())).fetch()
 
     def upsert_course(self, course_data):
         target_entity = self.get_course(course_data['unique_code'])

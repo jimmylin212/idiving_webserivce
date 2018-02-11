@@ -49,10 +49,10 @@ class InternalApi(remote.Service):
         response = self.course_utility.patch_course(request)
         return Response(status=response['status'], message=response['message'])
 
-    # @endpoints.method(COURSE_RESOURCE, Response, path='courses', http_method='POST', name='get_courses')
-    # def get_course(self, request):
-    #     response = self.course_utility.get_courses(request)
-    #     return Response(status=response['status'], message=response['message'], data=response['data'])
+    @endpoints.method(COURSE_RESOURCE, Response, path='courses', http_method='POST', name='get_courses')
+    def get_courses(self, request):
+        response = self.course_utility.get_courses(request)
+        return Response(status=response['status'], message=response['message'], data=response['data'])
 
     ## method for event
     @endpoints.method(EVENT_RESOURCE, Response, path='event', http_method='POST', name='get_event')

@@ -24,7 +24,7 @@ class CommonUtility:
         response = {}
         response['status'] = self.message_mapping[status]
         response['message'] = self.message_mapping[message]
-        if data:
+        if data != None:
             response['data'] = json.dumps(data, ensure_ascii=True)
 
         return response
