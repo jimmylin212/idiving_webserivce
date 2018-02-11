@@ -1,3 +1,4 @@
+import json
 class CommonUtility:
     def __init__(self):
         self.message_mapping = {
@@ -13,7 +14,8 @@ class CommonUtility:
             'SUCCESS_CREATE_COURSE_MSG': 'SUCCESS_CREATE_COURSE_MSG',
             'SUCCESS_PATCH_COURSE_MSG': 'SUCCESS_PATCH_COURSE_MSG',
             'FAILED_DUPLICATE_COURSE_MSG': 'FAILED_DUPLICATE_COURSE_MSG',
-            'FAILED_COURSE_NOT_FOUND_MSG': 'FAILED_COURSE_NOT_FOUND_MSG'
+            'FAILED_COURSE_NOT_FOUND_MSG': 'FAILED_COURSE_NOT_FOUND_MSG',
+            'FAILED_COLUMN_INCORRECT': 'FAILED_COLUMN_INCORRECT'
         }
 
         return
@@ -23,6 +25,6 @@ class CommonUtility:
         response['status'] = self.message_mapping[status]
         response['message'] = self.message_mapping[message]
         if data:
-            response['data'] = data
+            response['data'] = json.dumps(data, ensure_ascii=True)
 
         return response

@@ -98,13 +98,13 @@ class MemberUtility:
                     query_result['%s_tank_card' % license_type] = member_license_result.tank_card
         
         for key in query_result:
-            if (isinstance(query_result[key], datetime.date)):
+            if isinstance(query_result[key], datetime.date):
                 final_result[key] = query_result[key].strftime('%Y/%m/%d')
             else:
                 final_result[key] = query_result[key]
 
 
-        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_MEMBER_MSG', json.dumps(final_result, ensure_ascii=True))
+        return common_utility.responseHandler('SUCCESS', 'SUCCESS_GET_MEMBER_MSG', final_result)
 
     def create_member(self, request):
         db_utility = DBUtility()
